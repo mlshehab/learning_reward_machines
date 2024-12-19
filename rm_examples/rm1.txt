@@ -1,0 +1,7 @@
+0 # initial state
+[2] # terminal state
+(0,0,'!f',ConstantRewardFunction(0))
+(0,1,'f&!c',ConstantRewardFunction(0))
+(1,1,'!c',ConstantRewardFunction(0))
+(1,2,'c',ConstantRewardFunction(1))
+(2,2,'c|f|r1|r2|r3|h',ConstantRewardFunction(0))
