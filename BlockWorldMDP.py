@@ -66,9 +66,9 @@ def infinite_horizon_soft_bellman_iteration(MDP, reward,  tol = 1e-4, logging = 
 
 
 class BlocksWorldMDP:
-    def __init__(self):
+    def __init__(self, num_piles):
         self.colors = ["green", "yellow", "red"]
-        self.num_piles = 4
+        self.num_piles = num_piles
         self.stacking_pile = 0  # The target pile for stacking
         self.num_actions = self.num_piles **2
         self.num_states = 0
@@ -77,6 +77,8 @@ class BlocksWorldMDP:
         self.failure_prob = 0.0
         self.reset()
 
+    def __str__(self):
+        return f"BlockWorldMDP with {self.num_states} states and {self.num_actions} actions."
     def reset(self):
         """Initialize a random Blocks World state."""
         self.state = {

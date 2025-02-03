@@ -104,7 +104,7 @@ def collect_state_traces_iteratively(root):
     """
     # Initialize the dictionary to store traces for each state
     state_traces = {}
-
+    total_number_of_traces = 0
     # Initialize the queue with the root node
     queue = deque([root])
 
@@ -118,11 +118,12 @@ def collect_state_traces_iteratively(root):
             if current_node.state not in state_traces:
                 state_traces[current_node.state] = []  # Initialize the list if the state is not in the dictionary
             state_traces[current_node.state].append((current_node.label,current_node.policy))
+            total_number_of_traces += 1
 
         # Enqueue all children
         for child in current_node.children:
             queue.append(child)
-
+    print(f"The total number of traces is: {total_number_of_traces}")
     return state_traces
 
 
@@ -141,15 +142,15 @@ def get_unique_traces(proposition_traces):
         unique_labels = set()
         # List to store unique tuples
         unique_traces = []
-
+        n_unique=  0
         for label, policy in proposition_traces:
             # Check if the label is already in the set
             if remove_consecutive_duplicates(label) not in unique_labels:
                 # If not, add it to the set and add the tuple to the unique list
                 unique_labels.add(remove_consecutive_duplicates(label))
                 unique_traces.append((remove_consecutive_duplicates(label), policy))
-
-        return unique_traces
+                n_unique +=1
+        return unique_traces , n_unique
 
 def group_traces_by_policy(proposition_traces):
         """
@@ -213,10 +214,11 @@ def write_traces_to_xml(state_traces, filename="state_traces_blockworld.xml"):
 # Example usage
 if __name__ == '__main__':
     
-    rm = RewardMachine("./rm_examples/static_stacking.txt")
-    obs_str = 'G,G,G,G&Y,Y&G&R'
+    rm = RewardMachine("./rm_examples/adv_stacking.txt")
+    # print(f"rm.delta_u = {rm.delta_u}")
+    obs_str = 'D'
     print(u_from_obs(obs_str, rm))
 
-    s = 'G,G,R&Y,R&Y,R&Y&R,R&Y&R,R&Y&R,Y,I,I'
-    result = remove_consecutive_duplicates(s)
-    print(result)  # Output: 'G,R&Y,Y,I'
+    # s = 'G,G,R&Y,R&Y,R&Y&R,R&Y&R,R&Y&R,Y,I,I'
+    # result = remove_consecutive_duplicates(s)
+    # print(result)  # Output: 'G,R&Y,Y,I'

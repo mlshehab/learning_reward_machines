@@ -1,0 +1,10 @@
+0 # initial state
+[2] # terminal state
+(0,0,'B|I',ConstantRewardFunction(1))
+(0,1,'A',ConstantRewardFunction(1))
+(0,3,'D',ConstantRewardFunction(1))
+(1,1,'A|I',ConstantRewardFunction(1))
+(1,2,'B',ConstantRewardFunction(1))
+(1,3,'D',ConstantRewardFunction(1))
+(2,2,'A|B|D|I',ConstantRewardFunction(1))
+(3,3,'A|B|D|I',ConstantRewardFunction(1))
