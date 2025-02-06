@@ -6,9 +6,9 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # Append the parent directory to sys.path
 sys.path.append(parent_dir)
-from GridWorld import BasicGridWorld
+from dynamics.GridWorld import BasicGridWorld
 import numpy as np
-from mdp import MDP, MDPRM
+from utils.mdp import MDP, MDPRM
 from reward_machine.reward_machine import RewardMachine
 import scipy.linalg
 import time 
@@ -17,9 +17,9 @@ from tqdm import tqdm
 import pprint
 import xml.etree.ElementTree as ET
 from collections import deque
-from BlockWorldMDP import BlocksWorldMDP, infinite_horizon_soft_bellman_iteration
-from ne_utils import get_label, u_from_obs,save_tree_to_text_file, collect_state_traces_iteratively, get_unique_traces,group_traces_by_policy
-from sat_utils import *
+from dynamics.BlockWorldMDP import BlocksWorldMDP, infinite_horizon_soft_bellman_iteration
+from utils.ne_utils import get_label, u_from_obs,save_tree_to_text_file, collect_state_traces_iteratively, get_unique_traces,group_traces_by_policy
+from utils.sat_utils import *
 from datetime import timedelta
 
 class Node:

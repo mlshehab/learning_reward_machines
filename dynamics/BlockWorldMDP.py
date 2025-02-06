@@ -2,7 +2,7 @@ import numpy as np
 
 from scipy.special import softmax, logsumexp
 import time 
-from mdp import MDP, MDPRM
+from utils.mdp import MDP, MDPRM
 from itertools import permutations, product
 
 def infinite_horizon_soft_bellman_iteration(MDP, reward,  tol = 1e-4, logging = True, log_iter = 5, policy_test_iter = 20):

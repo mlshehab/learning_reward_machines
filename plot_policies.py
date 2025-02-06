@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.linalg import norm
 # Example matrices
-from BlockWorldMDP import BlocksWorldMDP, infinite_horizon_soft_bellman_iteration
-from mdp import MDP, MDPRM
+from dynamics.BlockWorldMDP import BlocksWorldMDP, infinite_horizon_soft_bellman_iteration
+from utils.mdp import MDP, MDPRM
 from reward_machine.reward_machine import RewardMachine
 import matplotlib.pyplot as plt
 import time
