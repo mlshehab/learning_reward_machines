@@ -8,6 +8,9 @@ from reward_machine.reward_machine import RewardMachine
 import matplotlib.pyplot as plt
 import time
 
+
+
+
 def d(P):
     m,n = P.shape
     dP = np.zeros((m,m*n))
