@@ -6,7 +6,7 @@ Code for the paper: [Learning Reward Machines From Partially Observed Optimal Po
 
 
 <video width="640" height="360" controls>
-  <source src="./video/lrm_panda_arm_stacking.webm" type="video/webm">
+  <source src="./video/lrm_panda_arm_stacking.mov" type="video/mov">
 </video>
 
 > **Note:** The simulation is done using the [CoppeliaSim](https://www.coppeliarobotics.com/) Simulator and [Franka Emika Panda robot](https://frankaemika.github.io/docs/index.html). The control is done using [PyRep](https://github.com/stepjam/PyRep).
