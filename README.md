@@ -3,11 +3,7 @@
 
 Code for the paper: [Learning Reward Machines From Partially Observed Optimal Policies](https://arxiv.org/pdf/2502.03762). 
 
-
-
-<video width="640" height="360" controls>
-  <source src="./video/lrm_panda_arm_stacking.mov" type="video/mov">
-</video>
+You can find a video of the experiment [here](https://mlshehab.github.io/images/lrm_panda_arm_stacking.mp4).
 
 > **Note:** The simulation is done using the [CoppeliaSim](https://www.coppeliarobotics.com/) Simulator and [Franka Emika Panda robot](https://frankaemika.github.io/docs/index.html). The control is done using [PyRep](https://github.com/stepjam/PyRep).
 
