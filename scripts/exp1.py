@@ -6,7 +6,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # Append the parent directory to sys.path
 sys.path.append(parent_dir)
-
+from dynamics.GridWorld import BasicGridWorld
 import numpy as np
 from utils.mdp import MDP, MDPRM
 from reward_machine.reward_machine import RewardMachine
@@ -67,132 +67,57 @@ def get_future_states_action(s,a, mdp):
 
     return list(set(post_state))
 
-
-
 import argparse
 
 # Define a function to handle command-line arguments
 def parse_args():
     parser = argparse.ArgumentParser(description="Automate script with depth option")
     parser.add_argument("--depth", type=int, help="Set the depth", required=True)
+    parser.add_argument('--print_solutions', action='store_true', default=False)
     return parser.parse_args()
 
 if __name__ == '__main__':
 
-
-
-    bw = BlocksWorldMDP(num_piles=3)
+    # Parse command-line arguments
+    args = parse_args()
     
+    # Set the depth variable from the command line argument
+    depth = args.depth
 
-    transition_matrices,s2i, i2s = bw.extract_transition_matrices_v2()
-    n_states = bw.num_states
-    n_actions = bw.num_actions
+    grid_size, wind, discount, horizon, start_state, feature_dim = 4, 0.1, 0.9, 13, 4, 2
+    theta = 5 * np.ones((2, 1))
+    theta[1] += 5
+    p1, p2, feature_type = 0, 24, 'None'
 
-    print(bw)
+    gw = BasicGridWorld(grid_size, wind, discount, horizon, start_state, feature_dim, p1, p2, theta, feature_type)
+    n_states, n_actions = gw.n_states, gw.n_actions
+    P = [gw.transition_probability[:, a, :] for a in range(n_actions)]
+    mdp = MDP(n_states=n_states, n_actions=n_actions, P=P, gamma=gw.discount, horizon=10)
 
-    P = []
-
-    for a in range(n_actions):
-        # print(f"The matrix shape is: {transition_matrices[a,:,:]}")
-        P.append(transition_matrices[a,:,:])
-
-    mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = 0.9,horizon=10)
-
-    rm = RewardMachine("../rm_examples/adv_stacking.txt")
-   
-
-
-    policy = {}
-    for rms in range(rm.n_states):
-        policy[rms] = f"p{rms}"
+    rm = RewardMachine("../rm_examples/patrol.txt")
+    # print(f"rm.delta_u = {rm.delta_u}")
+    policy = {rms: f"p{rms}" for rms in range(rm.n_states)}
+    # print("The policy is: ", policy)
+    # print(rm.delta_u)
     
-    policy[2] = policy[3]
-
     L = {}
-
-
-
-    # for state_index in range(bw.num_states):
-    #     state_tuple = i2s[state_index]
-    #     L[state_index] = get_label(state_tuple)
-
-    target_state_1 = ((0,1,2),(),())
-    target_state_2 = ((),(2,1,0),())
-    target_state_3 = ((),(),(2,1,0))
-    bad_state = ((0,),(1,),(2,))
-
-    for state_index in range(bw.num_states):
-        if state_index == s2i[target_state_1]:
-            L[state_index] = 'A'
-        elif state_index == s2i[target_state_2]:
-            L[state_index] = 'B'
-        # elif state_index == s2i[target_state_3]:
-        #     L[state_index] = 'C'
-        elif state_index == s2i[bad_state]:
-            L[state_index] = 'D'
-        else:
-            L[state_index] = 'I'
-
+    # The grid numbering and labeling is :
+    # 0 4 8 12    D D C C 
+    # 1 5 9 13    D D C C 
+    # 2 6 10 14   A A B B
+    # 3 7 11 15   A A B B
     
-    # for it in L.items():
-    #     print(f"Key = {it[0]}, state = {i2s[it[0]]}, label  = {it[1]}") 
-
+    L[2], L[6], L[3], L[7] = 'A', 'A', 'A', 'A'
+    L[0], L[4], L[8], L[12] = 'D', 'D', 'C', 'C'
+    L[1], L[5], L[9], L[13] = 'D', 'D', 'C', 'C'
+    L[10], L[14] = 'B', 'B'
+    L[11], L[15] = 'B', 'B'
 
     mdpRM = MDPRM(mdp,rm,L)
     mdp_ =  mdpRM.construct_product()
     # now we need a state action state reward for the product MDP
     reward = np.zeros((mdp_.n_states, mdp_.n_actions, mdp_.n_states))
- 
-    for bar_s in range(mdp_.n_states):
-        for a in range(mdp_.n_actions):
-            for bar_s_prime in range(mdp_.n_states):
-                (s,u) = mdpRM.su_pair_from_s(bar_s)
-                (s_prime,u_prime) = mdpRM.su_pair_from_s(bar_s_prime)
-
-                is_possible = mdp_.P[a][bar_s][bar_s_prime] > 0.0
-
-                if u == 2 and u_prime == 2:
-
-                    reward[bar_s, a, bar_s_prime] = 1.0
-                
-                if u == 0 and u_prime == 3:
-                    reward[bar_s, a, bar_s_prime] = 0.2
-
-                if u == 1 and u_prime == 3:
-                    reward[bar_s, a, bar_s_prime] = 0.2
-                
-
-
-    # q_soft,v_soft , soft_policy_d_adv = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
-
-    # np.save("soft_policy_j22.npy", soft_policy_d_adv)
-
-
-    # reward = np.zeros((mdp_.n_states, mdp_.n_actions, mdp_.n_states))
     # print(f"Reward: {reward.shape}, S: {mdp.n_states}, A: {mdp.n_actions}, RM: {rm.n_states}")
-
-    # for bar_s in range(mdp_.n_states):
-    #     for a in range(mdp_.n_actions):
-    #         for bar_s_prime in range(mdp_.n_states):
-    #             (s,u) = mdpRM.su_pair_from_s(bar_s)
-    #             (s_prime,u_prime) = mdpRM.su_pair_from_s(bar_s_prime)
-
-    #             is_possible = mdp_.P[a][bar_s][bar_s_prime] > 0.0
-
-    #             if u == 2 and u_prime == 2 and is_possible:
-
-    #                 reward[bar_s, a, bar_s_prime] = 1.0
-
-
-    # q_soft,v_soft , soft_policy_d_adv_2 = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
-
-    # np.save("soft_policy_d_adv_2.npy", soft_policy_d_adv_2)
-
-
-    # soft_policy = np.load("soft_policy_d.npy")
-
-   
-
 
     # #############
     # #############
@@ -200,25 +125,16 @@ if __name__ == '__main__':
     # #############
     # #############
 
-    # Parse command-line arguments
-    args = parse_args()
     
-    # Set the depth variable from the command line argument
-    depth = args.depth
     print(f"The depth is: {depth}")
     Root = Node(label = None, state= None, u = None,policy = None , is_root= True)
     queue = [(Root, 0)]  # Queue of tuples (node, current_depth)
 
     # The first time step here is assuming a fully supported starting distribution
     current_node, current_depth = queue.pop(0)  # Dequeue the next node
-    I_state = ((0,1),(2,),())
-    starting_states = [s2i[target_state_1], s2i[target_state_2], s2i[bad_state],s2i[I_state]]
-    # print(f"The starting state is: {i2s[0]}")
-
-    # test_state = ((),(1,),(2,),(0,))
-    # print(f"The state index of interest is: {s2i[test_state]}")
-    # for s in get_future_states(s2i[test_state], mdp):
-    #     print(f"The future states are: {i2s[s]}, L = {L[s]}")
+    
+ 
+    starting_states = [0,2,3,6,8]
 
     for s in starting_states:
     # for s in range(mdp.n_states):
@@ -257,33 +173,30 @@ if __name__ == '__main__':
                 current_node.add_child(child_node)
                 queue.append((child_node, current_depth + 1))
     
-  
-    # save_tree_to_text_file(Root, 'BlockWorldTree.txt')
-
-    # # Example usage
+   
     state_traces = collect_state_traces_iteratively(Root)
 
 
     state_traces_dict = {}
 
-    
+
+
     for state in state_traces.keys():
         # Get unique traces for the current state
-        unique_traces = get_unique_traces(state_traces[state])
+        unique_traces, n_unique = get_unique_traces(state_traces[state])
        
         # Group the traces by their policy
         grouped_lists = group_traces_by_policy(unique_traces)
 
         state_traces_dict[state] = grouped_lists
 
-
-
+   
 
     ###############################################
     ###### SAT Problem Encoding Starts HERE #######
     ###############################################
 
-    kappa = 3
+    kappa = 4
     AP = 4
     total_variables = kappa**2*AP
     total_constraints = 0
@@ -293,7 +206,7 @@ if __name__ == '__main__':
     B_ = element_wise_or_boolean_matrices([b_k for b_k in B])
     x = [False]*kappa
     x[0] = True
-    print(f"x = {x}")
+  
 
     B_T = transpose_boolean_matrix(B_)
 
@@ -323,35 +236,29 @@ if __name__ == '__main__':
         # total_constraints +=1
         s.add(one_entry_per_row(B[k]))
 
-
-    # proposition2index = {'G':0,'Y':1,'R':2,'G&Y':3,'G&R':4,'Y&R':5,'G&Y&R':6,'I':7}
-    proposition2index = {'A':0,'B':1,'D':2,'I':3}
+    proposition2index = {'A':0, 'B':1 , 'C':2, 'D':3}
 
     def prefix2indices(s):
-        # print(f"The input string is: {s.split(',')}")
+        
         out = []
         for l in s.split(','):
             if l:
                 out.append(proposition2index[l])
         return out
 
-
     counter_examples = generate_combinations(state_traces_dict)
 
     # print(f"The type is :{type(counter_examples)}")
 
     # C4 from from Notion Write-up 
-    print("Started with C4 ... \n")
+    
     total_start_time = time.time()
-
-
-    print(f"We have a total of {len(counter_examples.keys())} states that give negative examples.")
+   
     all_ce = []
     for state in counter_examples.keys():
-        print(f"Currently in state {state}...")
+        
         ce_set = counter_examples[state]
-        # print(f"The ce_set is: {ce_set}")
-        print(f"The number of counter examples is: {len(ce_set)}\n")
+       
         total_constraints += len(ce_set)
         
         # for each counter example in this set, add the correspodning constraint
@@ -369,18 +276,8 @@ if __name__ == '__main__':
             for elt in res_:
                 s.add(Not(elt))
                 
-        
-    print(f"we have a tortal of {total_constraints} constraints!")
+    print(f"we have a total of {total_constraints} constraints!")
 
-    # Open the file in write mode
-    with open('output_2S.txt', 'w') as file:
-        for item1, item2 in all_ce:
-            # Remove commas from both items
-            item1 = item1.replace(',', '')
-            item2 = item2.replace(',', '')
-            
-            # Write the processed pair to the file, joined by a space
-            file.write(f"{item1} {item2}\n")
 
     # Use timedelta to format the elapsed time
     elapsed  = time.time() - total_start_time
@@ -407,12 +304,13 @@ if __name__ == '__main__':
             
             # # Store the current solution
             # solution = []
-            print(f"Solution {s_it} ...")
-            for ap in range(AP):
-                r = [[m.evaluate(B[ap][i][j]) for j in range(kappa)] for i in range(kappa)]
-                # solution.append(r)
-                
-                print_matrix(r)  # Assuming print_matrix prints your matrix nicely
+            if args.print_solutions:
+                print(f"Solution {s_it} ...")
+                for ap in range(AP):
+                    r = [[m.evaluate(B[ap][i][j]) for j in range(kappa)] for i in range(kappa)]
+                    # solution.append(r)
+                    
+                    print_matrix(r)  # Assuming print_matrix prints your matrix nicely
             s_it += 1
             # # Add the solution to the list of found solutions
             # solutions.append(solution)

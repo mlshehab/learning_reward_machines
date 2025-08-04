@@ -123,12 +123,12 @@ def collect_state_traces_iteratively(root):
         # Enqueue all children
         for child in current_node.children:
             queue.append(child)
-    print(f"The total number of traces is: {total_number_of_traces}")
+    # print(f"The total number of traces is: {total_number_of_traces}")
     return state_traces
 
 
 
-def get_unique_traces(proposition_traces):
+def get_unique_traces(proposition_traces, non_stuttering  = True):
         """
         Extract unique items from a list of tuples based on the label part of each tuple.
 
@@ -144,13 +144,16 @@ def get_unique_traces(proposition_traces):
         unique_traces = []
         n_unique=  0
         for label, policy in proposition_traces:
-            # Check if the label is already in the set
-            if remove_consecutive_duplicates(label) not in unique_labels:
-                # If not, add it to the set and add the tuple to the unique list
-                unique_labels.add(remove_consecutive_duplicates(label))
-                unique_traces.append((remove_consecutive_duplicates(label), policy))
-                n_unique +=1
-        return unique_traces , n_unique
+            if non_stuttering:
+                if remove_consecutive_duplicates(label) not in unique_labels:
+                    unique_labels.add(remove_consecutive_duplicates(label))
+                    unique_traces.append((remove_consecutive_duplicates(label), policy))
+            else:
+                if label not in unique_labels:
+                    unique_labels.add(label)
+                    unique_traces.append((label, policy))
+              
+        return unique_traces 
 
 def group_traces_by_policy(proposition_traces):
         """

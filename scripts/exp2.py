@@ -74,7 +74,7 @@ import argparse
 # Define a function to handle command-line arguments
 def parse_args():
     parser = argparse.ArgumentParser(description="Automate script with depth option")
-    parser.add_argument("-depth", type=int, help="Set the depth", required=True)
+    parser.add_argument("--depth", type=int, help="Set the depth", required=True)
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -106,16 +106,14 @@ if __name__ == '__main__':
     
    
     rm = RewardMachine("../rm_examples/patrol.txt")
-    print(f"rm.delta_u = {rm.delta_u}")
+    
     policy = {}
     for rms in range(rm.n_states):
         policy[rms] = f"p{rms}"
     
    
 
-    print("The policy is: ", policy)
-    # print(rm.delta_u)
-
+  
  
     # The grid numbering and labeling is :
     # 0 3 6     D H C 
@@ -156,11 +154,6 @@ if __name__ == '__main__':
     # The first time step here is assuming a fully supported starting distribution
     current_node, current_depth = queue.pop(0)  # Dequeue the next node
     
-
-    # test_state = ((),(1,),(2,),(0,))
-    # print(f"The state index of interest is: {s2i[test_state]}")
-    # for s in get_future_states(s2i[test_state], mdp):
-    #     print(f"The future states are: {i2s[s]}, L = {L[s]}")
     starting_states = [0,2,3,6,8]
     for s in starting_states:
     # for s in range(mdp.n_states):
@@ -172,6 +165,7 @@ if __name__ == '__main__':
         current_node.add_child(child_node)
         queue.append((child_node, current_depth + 1))
 
+    start_time = time.time()
     while queue:
         current_node, current_depth = queue.pop(0)  # Dequeue the next node
 
@@ -199,8 +193,9 @@ if __name__ == '__main__':
                 current_node.add_child(child_node)
                 queue.append((child_node, current_depth + 1))
     
-  
-    # save_tree_to_text_file(Root, 'BlockWorldTree.txt')
+    end_time = time.time()
+    print(f"The time taken to build the tree is: {end_time - start_time} seconds")
+
 
     # # Example usage
     state_traces = collect_state_traces_iteratively(Root)
@@ -208,18 +203,15 @@ if __name__ == '__main__':
 
     state_traces_dict = {}
 
-    total_number_of_unique_traces = 0
+    
     for state in state_traces.keys():
         # Get unique traces for the current state
-        unique_traces, n_unique = get_unique_traces(state_traces[state])
-        total_number_of_unique_traces += n_unique
+        unique_traces = get_unique_traces(state_traces[state])
+       
         # Group the traces by their policy
         grouped_lists = group_traces_by_policy(unique_traces)
 
         state_traces_dict[state] = grouped_lists
-
-    print(f"The total number of Unique traces is: {total_number_of_unique_traces}")
-
 
     ###############################################
     ###### SAT Problem Encoding Starts HERE #######
@@ -235,7 +227,7 @@ if __name__ == '__main__':
     B_ = element_wise_or_boolean_matrices([b_k for b_k in B])
     x = [False]*kappa
     x[0] = True
-    print(f"x = {x}")
+  
 
     B_T = transpose_boolean_matrix(B_)
 
@@ -287,7 +279,7 @@ if __name__ == '__main__':
     total_start_time = time.time()
 
 
-    print(f"We have a total of {len(counter_examples.keys())} states that give negative examples.")
+    
     all_ce = []
     for state in counter_examples.keys():
         print(f"Currently in state {state}...")

@@ -74,7 +74,7 @@ import argparse
 # Define a function to handle command-line arguments
 def parse_args():
     parser = argparse.ArgumentParser(description="Automate script with depth option")
-    parser.add_argument("-depth", type=int, help="Set the depth", required=True)
+    parser.add_argument("--depth", type=int, help="Set the depth", required=True)
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -269,17 +269,17 @@ if __name__ == '__main__':
 
     state_traces_dict = {}
 
-    total_number_of_unique_traces = 0
+ 
     for state in state_traces.keys():
         # Get unique traces for the current state
-        unique_traces, n_unique = get_unique_traces(state_traces[state])
-        total_number_of_unique_traces += n_unique
+        unique_traces = get_unique_traces(state_traces[state])
+       
         # Group the traces by their policy
         grouped_lists = group_traces_by_policy(unique_traces)
 
         state_traces_dict[state] = grouped_lists
 
-    print(f"The total number of Unique traces is: {total_number_of_unique_traces}")
+    
 
 
     ###############################################
