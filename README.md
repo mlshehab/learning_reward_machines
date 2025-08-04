@@ -17,12 +17,12 @@ To execute an experiment, use the `run.sh` script from the root of the repositor
 
 ### Example Usage
 ```
-./run.sh exp2 -depth 5
+./run.sh exp2 --depth 5
 ```
 
 This will:
 - Change into the `scripts` directory.
-- Run the `exp2.py` script with the provided argument (`-depth 5`).
+- Run the `exp2.py` script with the provided argument (`--depth 5`).
 
 
 ## Requirements
